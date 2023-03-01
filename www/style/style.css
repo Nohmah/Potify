@@ -1,0 +1,10 @@
+body 
+{
+    background: rgb(62,29,107);
+    background: linear-gradient(330deg, rgba(62,29,107,1) 27%, rgba(26,38,28,1) 92%);
+    background-repeat: no-repeat;
+}
+h1, h2, h3
+{
+    text-align: center;
+}
