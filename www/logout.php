@@ -1,11 +1,12 @@
 <?php
 session_set_cookie_params(0);
 session_start();
-header("refresh:1;url=./main.php");
+//renvoie l'utilisateur sur la page d'accueil et supprime les sessions.
+header("refresh:1;url=./index.php");
 session_destroy();
 ?>
-<!DOCTYPE html lang="fr">
-<html>
+<!DOCTYPE html>
+<html lang="<?php echo substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);?>">
 
 <head><!-- Début de l'en tete -->
   <meta charset="utf-8">
@@ -13,7 +14,8 @@ session_destroy();
   <link rel="stylesheet" href="style/bootstrap.css">
   <link rel="stylesheet" href="style/style.css">
   <script src="style/bootstrap.js"></script>
-  <title>Logout</title>
+  <title>Déconnexion</title>
+  <link rel="icon" type="image/x-con" href="./style/logo.png">
 </head><!-- Fin de l'en tete -->
 
 <body>

@@ -3,11 +3,10 @@ session_set_cookie_params(0);
 session_start();
 require '../model/Log.php';
 use Model\Log;
-//Connexion à la base de données pour récupérer toutes les informations du compte associé à l'id passé en SESSION.
+//Connexion à la base de données pour récupérer tous les comptes de la table log.
 $con = new SQLite3('../data/data.db');
-$sql = $con->prepare('SELECT * from log where id=?');
-$sql->bindValue(1, $_SESSION['userid']);
-$result = $sql->execute();
+$sql = 'select * from log;';
+$result = $con->query($sql);
 $logList = array();
 while ($res = $result->fetchArray()) {
   array_push($logList, new Log($res['id'], $res['username'], $res['mail'], $res['password'], $res['right'], $res['registration_date']));
@@ -15,9 +14,7 @@ while ($res = $result->fetchArray()) {
 }
 ob_start()
   ?>
-<!--Début de la page HTML-->
 <!DOCTYPE html>
-<!-- afin de définir la langue de la page je récupère la valeur dans $_SERVER -->
 <html lang="<?php echo substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2); ?>">
 
 <head><!-- Début de l'en tete -->
@@ -26,13 +23,14 @@ ob_start()
   <link rel="stylesheet" href="style/bootstrap.css">
   <link rel="stylesheet" href="style/style.css">
   <script src="style/bootstrap.js"></script>
-  <title>Mon Compte</title>
+  <script src="style/script.js"></script>
+  <title>Gestion des Compte</title>
   <link rel="icon" type="image/x-con" href="./style/logo.png">
 </head><!-- Fin de l'en tete -->
 
-<body><!-- Début du corps de la page -->
+<body>
 <!-- Début de ma navbar-->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <a href="./index.php"><img src="./style/logo.png" alt="Logo du site"></a>
       <?php if (isset($_SESSION["username"])) { ?>
@@ -77,61 +75,51 @@ ob_start()
     </div>
   </nav>
   <!-- fin navbar -->
-  <br>
-  <!-- Titre de la page affiché sur la page -->
-  <h1 class="text-white">Votre Compte</h1>
+  <!-- Titre de la page-->
+  <h1 class="text-white">Gestion de Comptes</h1>
   <div class="container">
-    <div class="container">
-      <!-- Tableau de la page d'accueil-->
-      <table class="table table-striped table-dark">
-        <tbody>
-          <!-- Utilisation d'une boucle foreach pour afficher chaque compte dans le tableau -->
-          <!-- Pour afficher chaque musique à l'aide du fichier contenant la classe Log on utilise les accesseurs-->
-          <?php foreach ($logList as $log): ?>
-            <tr class="tableproduct">
-              <th scope="col">Nom d'Utilisateur</th>
-              <td>
-                <?php echo $log->getUsername() ?>
-              </td>
-            </tr>
-
-            <tr class="tableproduct">
-              <th scope="col">Mail</th>
-              <td>
-                <?php echo $log->getMail() ?>
-              </td>
-            </tr>
-
-            <tr>
-              <th scope="col">Droit</th>
-              <td>
-                <?php if ($log->getRight() == "A") {
-                  echo "Administrateur";
-                } else {
-                  echo "Utilisateur";
-                }
-                ?>
-              </td>
-            </tr>
-
-            <tr>
-              <th scope="col">Date d'Inscription</th>
-              <td>
-                <?php echo $log->getRegistrationDate() ?>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-      <div class="container d-flex justify-content-center">
-      <!-- Bouton permettant de rediriger vers la page de déconnexion.-->
-        <button class=" btn btn-purple" onclick="window.location.href = './logout.php';">Se Déconnecter</button>
-      </div>
-    </div>
+    <!-- Création tableau-->
+    <table class="table table-striped table-dark table-bordered table-respo,s">
+      <thead>
+        <tr>
+          <th>Nom d'Utilisateur</th>
+          <th>Mail</th>
+          <th>Droit</th>
+          <th>Date de Création</th>
+          <?php if (@$_SESSION["right"] == "A") { ?>
+            <th>Editer</th>
+            <th>Supprimer</th>
+          <?php } ?>
+        </tr>
+      </thead>
+      <tbody>
+      <!-- Utilisation d'une boucle foreach pour afficher tout les comptes dans le tableau en utilisant les accesseurs-->
+      <?php foreach ($logList as $log): ?>
+        <tr data-href="<?php echo "listaccount.php?userid=" . $log->getId() ?>">
+          <td>
+            <?php echo $log->getUsername() ?>
+          </td>
+          <td>
+            <?php echo $log->getMail() ?>
+          </td>
+          <td>
+            <?php echo $log->getRight() ?>
+          </td>
+          <td>
+            <?php echo $log->getRegistrationDate() ?>
+          </td>
+          <!-- Au cas ou un utilisateur tombe sur cette page, les boutons modifier et supprimer sont afficher uniquement si l'utilisateur est un admin-->
+          <?php if (@$_SESSION["right"] == "A") { ?>
+            <td ><a class="text-white" href="<?php echo "editaccount.php?userid=" . $log->getId() ?>">Editer</a></td>
+            <td ><a class="text-danger" href="<?php echo "delete.php?userid=" . $log->getId() ?>">Supprimer</a></td>
+          <?php } ?>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
   </div>
   <!-- Inclusion du fichier footer.php pour affichier le footer de la page -->
-  <?php include "./footer.php"; ?>
+  <?php require './footer.php';?>
 </body>
-
 
 </html>

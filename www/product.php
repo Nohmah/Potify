@@ -3,7 +3,7 @@ session_set_cookie_params(0);
 session_start();
 require '../model/Music.php';
 use Model\Music;
-
+//effectue une connexion à la base de données et effectue une requête pour récuperer toutes les caractéristiques de la musique dont l'id à été renseigné en GET, dans la table music.
 $con = new SQLite3('../data/data.db');
 $sql = $con->prepare('SELECT * from music where id=?');
 $sql->bindValue(1, $_GET['id']);
@@ -17,8 +17,8 @@ while ($res = $results->fetchArray()) {
   );
 }
 ?>
-<!DOCTYPE html lang="fr">
-<html>
+<!DOCTYPE html>
+<html lang="<?php echo substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);?>">
 
 <head><!-- Début de l'en tete -->
   <meta charset="utf-8">
@@ -26,68 +26,68 @@ while ($res = $results->fetchArray()) {
   <link rel="stylesheet" href="style/bootstrap.css">
   <link rel="stylesheet" href="style/style.css">
   <script src="style/bootstrap.js"></script>
-  <title>Main</title>
+  <title>Produit</title>
+  <link rel="icon" type="image/x-con" href="./style/logo.png">
 </head><!-- Fin de l'en tete -->
 
 <body class="body"><!-- Début du corps de la page -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<!-- Début de ma navbar-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a href="./main.php"><img src="./style/logo.png">
-        <?php if (isset($_SESSION["username"])) { ?>
-          <a class="navbar-brand" href="./main.php">Bonjour,
-            <?php echo $_SESSION["username"] ?>
-          </a>
-        <?php } else {
-          ?>
-          <a class="navbar-brand" href="./main.php">Accueil</a>
-        <?php } ?>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <?php if ($_SESSION == null) { ?>
-                <a class="nav-link" href="./login.php">Se Connecter</a>
-              <?php } else { ?>
-                <a class="nav-link" href="./account.php">Mon Compte</a>
-              <?php } ?>
-            </li>
-            <?php if (isset($_SESSION["username"])) {
-              ?>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-                  aria-expanded="false">
-                  Mes playlist
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
-                </ul>
-              </li>
+      <a href="./index.php"><img src="./style/logo.png" alt="Logo du site"></a>
+      <?php if (isset($_SESSION["username"])) { ?>
+        <a class="navbar-brand" href="./index.php">Bonjour,
+          <?php echo $_SESSION["username"] ?>
+        </a>
+      <?php } else {
+        ?>
+        <a class="navbar-brand" href="./index.php">Accueil</a>
+      <?php } ?>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <!-- Si l'utilisateur la session est vide, alors aucun utilisateur n'est connecter. Cela affiche l'option se connecter-->
+            <?php if ($_SESSION == null) { ?>
+              <a class="nav-link" href="./login.php">Se Connecter</a>
+              <!-- Si l'utilisateur est connecté la session contient ses informations, si la session n'est pas vide alors l'option Mon Compte apparaît-->
+            <?php } else { ?>
+              <a class="nav-link" href="./account.php">Mon Compte</a>
             <?php } ?>
-          </ul>
-          <form class="d-flex">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-purple" type="submit">Search</button>
-          </form>
-        </div>
+          </li>
+          <!-- Vérifie que l'utilisateur connecter est un Administrateur, si il l'est le panneau d'administration s'affiche-->
+          <?php if (@$_SESSION["right"] == "A") { ?>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Panneau d'administration
+              </a>
+              <ul class="dropdown-menu " aria-labelledby="navbarDropdown">
+                <li class="list-group-item list-group-item-dark"><a class="dropdown-item" href="./index.php">Editer Musique</a></li>
+                <li class="list-group-item list-group-item-dark"><a class="dropdown-item" href="./adminaccount.php">Editer Compte</a></li>
+                <li class="list-group-item list-group-item-dark"><a class="dropdown-item" href="./addmusic.php">Ajouter Musique</a></li>
+              </ul>
+            </li>
+          <?php } ?>
+        </ul>
+      </div>
     </div>
   </nav>
+  <!-- fin navbar -->
   <br>
-  <h1 class="text-white" align="center">Music n°
+  <h1 class="text-white">Musique n°
     <?php echo $_GET['id'] ?>
   </h1>
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-6">
+        <!-- affiche l'image de la musique-->
         <img src="./cover/<?php echo $_GET['id'] ?>.jpg" width="500" height="500" alt="Album Cover">
-        <div align="center">
+        <div class="audiodiv">
+          <!-- Affiche l'audio de la musique-->
           <audio controls>
             <source src="./audio/<?php echo $_GET['id'] ?>.mp3" type="audio/mpeg">
           </audio>
@@ -96,31 +96,32 @@ while ($res = $results->fetchArray()) {
       <div class="col-6">
         <div class="container">
           <table class="table table-striped table-dark">
-            </tbody>
+            <tbody>
+              <!-- La boucle foreach permet de mettre dans le tableau toutes les caractéristiques de la musique avec les accesseurs de la classe Music-->
             <?php foreach ($musicelements as $music): ?>
               <tr class="tableproduct">
-                <th scope="col">Title</th>
+                <th scope="col">Titre</th>
                 <td>
                   <?php echo $music->getTitle() ?>
                 </td>
               </tr>
 
               <tr class="tableproduct">
-                <th scope="col">Time</th>
+                <th scope="col">Durée</th>
                 <td>
                   <?php echo $music->getTime() ?>
                 </td>
               </tr>
 
               <tr>
-                <th scope="col">Number Of Listening</th>
+                <th scope="col">Nombre d'écoutes</th>
                 <td>
                   <?php echo $music->getNumberOfListening() ?>
                 </td>
               </tr>
 
               <tr>
-                <th scope="col">Artist</th>
+                <th scope="col">Artiste</th>
                 <td>
                   <?php echo $music->getArtist() ?>
                 </td>
@@ -141,21 +142,21 @@ while ($res = $results->fetchArray()) {
               </tr>
 
               <tr>
-                <th scope="col">Album Time</th>
+                <th scope="col">Durée Album</th>
                 <td>
                   <?php echo $music->getAlbumTime() ?>
                 </td>
               </tr>
 
               <tr>
-                <th scope="col">Year</th>
+                <th scope="col">Année</th>
                 <td>
                   <?php echo $music->getYear() ?>
                 </td>
               </tr>
 
               <tr>
-                <th scope="col">Number of Music</th>
+                <th scope="col">Nombre de musique</th>
                 <td>
                   <?php echo $music->getNumberOfMusic() ?>
                 </td>
@@ -169,28 +170,28 @@ while ($res = $results->fetchArray()) {
               </tr>
 
               <tr>
-                <th scope="col">Key</th>
+                <th scope="col">Note</th>
                 <td>
                   <?php echo $music->getKey() ?>
                 </td>
               </tr>
 
               <tr>
-                <th scope="col">Interpreter</th>
+                <th scope="col">Interprète</th>
                 <td>
                   <?php echo $music->getInterpreter() ?>
                 </td>
               </tr>
 
               <tr>
-                <th scope="col">Compositor</th>
+                <th scope="col">Compositeur</th>
                 <td>
                   <?php echo $music->getCompositor() ?>
                 </td>
               </tr>
 
               <tr>
-                <th scope="col">Productor</th>
+                <th scope="col">Producteur</th>
                 <td>
                   <?php echo $music->getProductor() ?>
                 </td>
@@ -203,6 +204,7 @@ while ($res = $results->fetchArray()) {
       </div>
     </div>
   </div>
+  <?php require './footer.php';?>
 </body>
 
 </html>

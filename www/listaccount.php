@@ -3,10 +3,10 @@ session_set_cookie_params(0);
 session_start();
 require '../model/Log.php';
 use Model\Log;
-//Connexion à la base de données pour récupérer toutes les informations du compte associé à l'id passé en SESSION.
+//Connexion à la base de données pour récupérer toutes les informations du compte avec l'id renseigné en GET depuis la table log.
 $con = new SQLite3('../data/data.db');
 $sql = $con->prepare('SELECT * from log where id=?');
-$sql->bindValue(1, $_SESSION['userid']);
+$sql->bindValue(1, $_GET['userid']);
 $result = $sql->execute();
 $logList = array();
 while ($res = $result->fetchArray()) {
@@ -15,10 +15,8 @@ while ($res = $result->fetchArray()) {
 }
 ob_start()
   ?>
-<!--Début de la page HTML-->
 <!DOCTYPE html>
-<!-- afin de définir la langue de la page je récupère la valeur dans $_SERVER -->
-<html lang="<?php echo substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2); ?>">
+<html lang="<?php echo substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);?>">
 
 <head><!-- Début de l'en tete -->
   <meta charset="utf-8">
@@ -32,7 +30,7 @@ ob_start()
 
 <body><!-- Début du corps de la page -->
 <!-- Début de ma navbar-->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <a href="./index.php"><img src="./style/logo.png" alt="Logo du site"></a>
       <?php if (isset($_SESSION["username"])) { ?>
@@ -78,15 +76,12 @@ ob_start()
   </nav>
   <!-- fin navbar -->
   <br>
-  <!-- Titre de la page affiché sur la page -->
-  <h1 class="text-white">Votre Compte</h1>
+  <h1 class="text-white">Compte n° <?php echo $_GET['userid']; ?></h1>
   <div class="container">
     <div class="container">
-      <!-- Tableau de la page d'accueil-->
       <table class="table table-striped table-dark">
         <tbody>
-          <!-- Utilisation d'une boucle foreach pour afficher chaque compte dans le tableau -->
-          <!-- Pour afficher chaque musique à l'aide du fichier contenant la classe Log on utilise les accesseurs-->
+          <!-- Utilisation d'une boucle foreach pour afficher chaque info du compte dans un tableau à l'aide des accesseurs de la classe Log -->
           <?php foreach ($logList as $log): ?>
             <tr class="tableproduct">
               <th scope="col">Nom d'Utilisateur</th>
@@ -123,15 +118,9 @@ ob_start()
           <?php endforeach; ?>
         </tbody>
       </table>
-      <div class="container d-flex justify-content-center">
-      <!-- Bouton permettant de rediriger vers la page de déconnexion.-->
-        <button class=" btn btn-purple" onclick="window.location.href = './logout.php';">Se Déconnecter</button>
-      </div>
     </div>
   </div>
-  <!-- Inclusion du fichier footer.php pour affichier le footer de la page -->
-  <?php include "./footer.php"; ?>
+  <?php require './footer.php';?>
 </body>
-
 
 </html>
